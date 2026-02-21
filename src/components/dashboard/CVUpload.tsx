@@ -19,7 +19,12 @@ export function CVUpload({ onCVUploaded, isProcessing }: CVUploadProps) {
         "application/msword",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
       ];
-      if (!validTypes.includes(file.type)) return;
+      const validExtensions = [".pdf", ".doc", ".docx"];
+      const ext = file.name.toLowerCase().slice(file.name.lastIndexOf("."));
+      if (!validTypes.includes(file.type) || !validExtensions.includes(ext)) {
+        alert("Only CV files are accepted (PDF, DOC, DOCX). Other documents are not supported.");
+        return;
+      }
       setUploadedFile(file);
       onCVUploaded(file);
     },
