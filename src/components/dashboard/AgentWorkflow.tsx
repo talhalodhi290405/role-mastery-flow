@@ -45,9 +45,10 @@ interface AgentWorkflowProps {
   onAgentComplete?: (agentIndex: number, agent: AgentNode) => void;
   onWorkflowStart?: () => void;
   onWorkflowComplete?: () => void;
+  autoStart?: boolean;
 }
 
-export function AgentWorkflow({ onAgentComplete, onWorkflowStart, onWorkflowComplete }: AgentWorkflowProps) {
+export function AgentWorkflow({ onAgentComplete, onWorkflowStart, onWorkflowComplete, autoStart }: AgentWorkflowProps) {
   const [agents, setAgents] = useState<AgentNode[]>(createInitialAgents());
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -56,6 +57,27 @@ export function AgentWorkflow({ onAgentComplete, onWorkflowStart, onWorkflowComp
 
   const totalTokens = agents.reduce((sum, a) => sum + a.tokens, 0);
   const totalTime = agents.reduce((sum, a) => sum + a.time, 0);
+
+  const handleStart = useCallback(() => {
+    const freshAgents = createInitialAgents();
+    freshAgents[0].status = "running";
+    for (let i = 1; i < freshAgents.length; i++) {
+      freshAgents[i].status = "waiting";
+    }
+    setAgents(freshAgents);
+    setCurrentAgent(0);
+    setIsRunning(true);
+    setIsPaused(false);
+    setIsComplete(false);
+    onWorkflowStart?.();
+  }, [onWorkflowStart]);
+
+  // Auto-start when triggered by CV upload
+  useEffect(() => {
+    if (autoStart && !isRunning) {
+      handleStart();
+    }
+  }, [autoStart, isRunning, handleStart]);
 
   // Simulate agent processing
   useEffect(() => {
@@ -120,20 +142,6 @@ export function AgentWorkflow({ onAgentComplete, onWorkflowStart, onWorkflowComp
     return () => clearInterval(interval);
   }, [isRunning, isPaused, currentAgent, agents, onAgentComplete, onWorkflowComplete]);
 
-  const handleStart = useCallback(() => {
-    const freshAgents = createInitialAgents();
-    freshAgents[0].status = "running";
-    // Mark rest as waiting
-    for (let i = 1; i < freshAgents.length; i++) {
-      freshAgents[i].status = "waiting";
-    }
-    setAgents(freshAgents);
-    setCurrentAgent(0);
-    setIsRunning(true);
-    setIsPaused(false);
-    setIsComplete(false);
-    onWorkflowStart?.();
-  }, [onWorkflowStart]);
 
   const handlePause = () => setIsPaused((p) => !p);
 

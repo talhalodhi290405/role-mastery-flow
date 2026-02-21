@@ -1,10 +1,29 @@
+import { useState, useCallback } from "react";
 import { StrategyCard } from "@/components/dashboard/StrategyCard";
 import { AgentWorkflow } from "@/components/dashboard/AgentWorkflow";
 import { ActivityLogView, useActivityLog } from "@/components/dashboard/ActivityLog";
 import { ControlTower } from "@/components/dashboard/ControlTower";
+import { CVUpload } from "@/components/dashboard/CVUpload";
 
 const Dashboard = () => {
   const { logs, addLog, clearLogs } = useActivityLog();
+  const [autoStart, setAutoStart] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handleCVUploaded = useCallback(() => {
+    clearLogs();
+    setAutoStart(true);
+    setIsProcessing(true);
+  }, [clearLogs]);
+
+  const handleWorkflowStart = useCallback(() => {
+    clearLogs();
+  }, [clearLogs]);
+
+  const handleWorkflowComplete = useCallback(() => {
+    setAutoStart(false);
+    setIsProcessing(false);
+  }, []);
 
   return (
     <div className="flex min-h-screen">
@@ -13,11 +32,14 @@ const Dashboard = () => {
           <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
           <p className="text-sm text-muted-foreground">AI-powered job acquisition command center</p>
         </div>
+        <CVUpload onCVUploaded={handleCVUploaded} isProcessing={isProcessing} />
         <StrategyCard />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AgentWorkflow
             onAgentComplete={addLog}
-            onWorkflowStart={clearLogs}
+            onWorkflowStart={handleWorkflowStart}
+            onWorkflowComplete={handleWorkflowComplete}
+            autoStart={autoStart}
           />
           <ActivityLogView logs={logs} />
         </div>
