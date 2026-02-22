@@ -4,6 +4,7 @@ import { AgentWorkflow } from "@/components/dashboard/AgentWorkflow";
 import { ActivityLogView, useActivityLog } from "@/components/dashboard/ActivityLog";
 import { ControlTower } from "@/components/dashboard/ControlTower";
 import { CVUpload } from "@/components/dashboard/CVUpload";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Dashboard = () => {
   const { logs, addLog, clearLogs } = useActivityLog();
@@ -28,9 +29,12 @@ const Dashboard = () => {
   return (
     <div className="flex min-h-screen">
       <div className="flex-1 p-6 space-y-6 overflow-y-auto">
-        <div>
-          <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">AI-powered job acquisition command center</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-sm text-muted-foreground">AI-powered job acquisition command center</p>
+          </div>
+          <ThemeToggle />
         </div>
         <CVUpload onCVUploaded={handleCVUploaded} isProcessing={isProcessing} />
         <StrategyCard />
